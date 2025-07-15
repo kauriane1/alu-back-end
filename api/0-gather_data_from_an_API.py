@@ -1,27 +1,35 @@
 #!/usr/bin/python3
 """
-This script uses a REST API to fetch and display the TODO list progress
-of a given employee ID.
+getting data using api
 """
-
 import requests
 import sys
 
 if __name__ == "__main__":
-    emp_id = sys.argv[1]
+    employee_Id = int(sys.argv[1])
 
-    # Get employee info
-    user_url = f"https://jsonplaceholder.typicode.com/users/{emp_id}"
-    user_res = requests.get(user_url).json()
-    emp_name = user_res.get("name")
+    todo_url = "https://jsonplaceholder.typicode.com/todos"
+    user_data_url = "https://jsonplaceholder.typicode.com/users"
 
-    # Get todos for employee
-    todo_url = f"https://jsonplaceholder.typicode.com/todos?userId={emp_id}"
-    todos = requests.get(todo_url).json()
-
-    done_tasks = [task for task in todos if task.get("completed")]
-    total_tasks = len(todos)
-
-    print(f"Employee {emp_name} is done with tasks({len(done_tasks)}/{total_tasks}):")
-    for task in done_tasks:
-        print(f"\t {task.get('title')}")
+    user_response = requests.get(user_data_url)
+    todo_response = requests.get(todo_url)
+    # if todo_response.status_code & user_response.status_code == 200:
+    todos = todo_response.json()
+    users = user_response.json()
+    for user in users:
+        if user.get("id") == employee_Id:
+            employee_name = user.get("name")
+    # filter completed tasks
+    done = []
+    total = 0
+    completed = 0
+    for todo in todos:
+        if todo.get("userId") == employee_Id:
+            total += 1
+            if todo.get("completed"):
+                completed += 1
+                done.append(todo.get("title"))
+    # Display the progress information
+    print(f"Employee {employee_name} is done with tasks({completed}/{total}):")
+    for _ in done:
+        print(f"\t {_}")
